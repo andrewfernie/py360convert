@@ -3,6 +3,7 @@
 import argparse
 import numpy as np
 from PIL import Image
+from pathlib import PurePath
 
 import py360convert
 
@@ -32,6 +33,8 @@ parser.add_argument('--v_deg', type=float, default=0,
                     help='Vertical viewing angle for e2p.')
 parser.add_argument('--in_rot_deg', type=float, default=0,
                     help='Inplane rotation for e2p.')
+parser.add_argument('--f', default='dice', choices=['dice', 'list', 'dict'],
+                    help='Output format for e2c.')
 args = parser.parse_args()
 
 
@@ -44,7 +47,7 @@ if len(img.shape) == 2:
 if args.convert == 'c2e':
     out = py360convert.c2e(img, h=args.h, w=args.w, mode=args.mode)
 elif args.convert == 'e2c':
-    out = py360convert.e2c(img, face_w=args.w, mode=args.mode)
+    out = py360convert.e2c(img, face_w=args.w, mode=args.mode, cube_format=args.f)
 elif args.convert == 'e2p':
     out = py360convert.e2p(img, fov_deg=(args.h_fov, args.v_fov), u_deg=args.u_deg, v_deg=args.v_deg,
                            out_hw=(args.h, args.w), in_rot_deg=args.in_rot_deg, mode=args.mode)
@@ -52,4 +55,34 @@ else:
     raise NotImplementedError('Unknown convertion')
 
 # Output image
-Image.fromarray(out.astype(np.uint8)).save(args.o)
+if args.f == 'list':
+    fparts = PurePath(args.o)
+
+    pathout = str(fparts.parent) + '\\' + str(fparts.stem) + '1' + str(fparts.suffix)
+    img1 = Image.fromarray(out[0].astype(np.uint8))
+    img1.save(pathout)
+
+    pathout = str(fparts.parent) + '\\' + str(fparts.stem) + '2' + str(fparts.suffix)
+    img2 = Image.fromarray(out[1].astype(np.uint8))
+    img2 = img2.transpose(method=Image.FLIP_LEFT_RIGHT)
+    img2.save(pathout)
+
+    pathout = str(fparts.parent) + '\\' + str(fparts.stem) + '3' + str(fparts.suffix)
+    img3 = Image.fromarray(out[2].astype(np.uint8))
+    img3 = img3.transpose(method=Image.FLIP_LEFT_RIGHT)
+    img3.save(pathout)
+
+    pathout = str(fparts.parent) + '\\' + str(fparts.stem) + '4' + str(fparts.suffix)
+    img4 = Image.fromarray(out[3].astype(np.uint8))
+    img4.save(pathout)
+
+    pathout = str(fparts.parent) + '\\' + str(fparts.stem) + '5' + str(fparts.suffix)
+    img5 = Image.fromarray(out[4].astype(np.uint8))
+    img5 = img5.transpose(method=Image.FLIP_TOP_BOTTOM)
+    img5.save(pathout)
+
+    pathout = str(fparts.parent) + '\\' + str(fparts.stem) + '6' + str(fparts.suffix)
+    img6 = Image.fromarray(out[5].astype(np.uint8))
+    img6.save(pathout)
+else:
+    Image.fromarray(out.astype(np.uint8)).save(args.o)

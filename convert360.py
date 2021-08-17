@@ -7,7 +7,6 @@ from pathlib import PurePath
 
 import py360convert
 
-
 # Parsing command line arguments
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                  description='Convertion between cubemap and equirectangular or equirectangular to perspective.')
@@ -52,10 +51,10 @@ elif args.convert == 'e2p':
     out = py360convert.e2p(img, fov_deg=(args.h_fov, args.v_fov), u_deg=args.u_deg, v_deg=args.v_deg,
                            out_hw=(args.h, args.w), in_rot_deg=args.in_rot_deg, mode=args.mode)
 else:
-    raise NotImplementedError('Unknown convertion')
+    raise NotImplementedError('Unknown conversion')
 
 # Output image
-if args.f == 'list':
+if (args.convert == 'e2c') and (args.f == 'list'):
     fparts = PurePath(args.o)
 
     pathout = str(fparts.parent) + '\\' + str(fparts.stem) + '1' + str(fparts.suffix)
